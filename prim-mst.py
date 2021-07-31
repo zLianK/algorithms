@@ -9,15 +9,37 @@ class Graph:
         self.prim_subsets = []
 
     def add_edge(self, u, v, w):
-        self.edges[u].append([v, w])
+        self.edges[u - 1].append([v - 1, w])
 
     def min_key(self):
-        pass
+        min_weight = maxsize
+        min_index = None
+
+        for i in range(self.V):
+            if self.prim_subsets[i].key < min_weight and self.prim_subsets[i].used is False:
+                min_weight = self.prim_subsets[i].key
+                min_index = i
+        return min_index
 
     def prim_mst(self):
-        [self.prim_subsets.append(Subset(maxsize, None, False)) for _ in range(self.V)]
+        [self.prim_subsets.append(Subset(False, None, maxsize)) for _ in range(self.V)]
         self.prim_subsets[0].parent = -1
-        
+        self.prim_subsets[0].key = 0
+
+        for _ in range(self.V):
+            u = self.min_key()
+            if u is None:
+                return
+
+            self.prim_subsets[u].used = True
+
+            for i in range(self.V):
+                for j in range(len(self.edges[i])):
+                    subset = self.prim_subsets[self.edges[i][j][0]]
+                    edge_weight = self.edges[i][j][1]
+                    if 0 < edge_weight < subset.key and subset.used is False:
+                        subset.key = edge_weight
+                        subset.parent = u
 
 
 class Subset:

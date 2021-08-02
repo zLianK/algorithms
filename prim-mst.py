@@ -1,5 +1,8 @@
 from collections import defaultdict
 from sys import maxsize
+from timeit import default_timer as timer
+
+start = timer()
 
 
 class Graph:
@@ -10,6 +13,7 @@ class Graph:
 
     def add_edge(self, u, v, w):
         self.edges[u - 1].append([v - 1, w])
+        self.edges[v - 1].append([u - 1, w])
 
     def min_key(self):
         min_weight = maxsize
@@ -22,24 +26,30 @@ class Graph:
         return min_index
 
     def prim_mst(self):
+        resulting_mst = []
         [self.prim_subsets.append(Subset(False, None, maxsize)) for _ in range(self.V)]
         self.prim_subsets[0].parent = -1
         self.prim_subsets[0].key = 0
 
         for _ in range(self.V):
             u = self.min_key()
-            if u is None:
-                return
 
             self.prim_subsets[u].used = True
+            if self.prim_subsets[u].parent != -1:
+                resulting_mst.append([self.prim_subsets[u].parent, u, self.prim_subsets[u].key])
 
-            for i in range(self.V):
-                for j in range(len(self.edges[i])):
-                    subset = self.prim_subsets[self.edges[i][j][0]]
-                    edge_weight = self.edges[i][j][1]
-                    if 0 < edge_weight < subset.key and subset.used is False:
-                        subset.key = edge_weight
-                        subset.parent = u
+            for j in self.edges[u]:
+                subset = self.prim_subsets[j[0]]
+                edge_weight = j[1]
+                if 0 < edge_weight < subset.key and subset.used is False:
+                    subset.key = edge_weight
+                    subset.parent = u
+
+        minimum_cost = 0
+        for u, v, weight in resulting_mst:
+            minimum_cost += weight
+            print(f"{u + 1} -- {v + 1} == {weight}")
+        print(f"Minimum Spanning Tree = {minimum_cost}")
 
 
 class Subset:
@@ -77,6 +87,9 @@ def main():
     g.add_edge(13, 16, 2)
 
     g.prim_mst()
+
+    elapsed_time = timer() - start
+    print(elapsed_time)
 
 
 if __name__ == '__main__':

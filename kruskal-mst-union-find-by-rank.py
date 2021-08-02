@@ -16,7 +16,6 @@ class Graph:
         self.edges.append([u - 1, v - 1, w])
 
     def is_cycle(self, edge_index):
-        print(edge_index)
         x = self.find(self.edges[edge_index][0])
         y = self.find(self.edges[edge_index][1])
 
